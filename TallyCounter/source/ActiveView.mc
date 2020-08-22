@@ -1,23 +1,15 @@
 using Toybox.WatchUi;
 using Toybox.Timer;
 
-class TallyCounterView extends WatchUi.View {
+class ActiveView extends WatchUi.View {
 
     function initialize() {
         View.initialize();
     }
 
-    function timerCallback() {
-        System.println("timer");
-        WatchUi.requestUpdate();
-    }
-
     // Load your resources here
     function onLayout(dc) {
-        setLayout(Rez.Layouts.MainLayout(dc));
-        
-        var myTimer = new Timer.Timer();
-        myTimer.start(method(:timerCallback), 5000, true);
+        setLayout(Rez.Layouts.ActiveLayout(dc));
     }
 
     // Called when this View is brought to the foreground. Restore
@@ -33,6 +25,10 @@ class TallyCounterView extends WatchUi.View {
                         myTime.min.format("%02d") + ":" +
                         myTime.sec.format("%02d");
         findDrawableById("clock").setText(szTime);
+    
+        findDrawableById("counter_1").setText(g_counter_1.toString());
+        
+        findDrawableById("counter_2").setText(g_counter_2.toString());
         
         // Call the parent onUpdate function to redraw the layout
         View.onUpdate(dc);

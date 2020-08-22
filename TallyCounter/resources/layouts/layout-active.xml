@@ -1,8 +1,6 @@
-<layout id="MainLayout">
+<layout id="ActiveLayout">
     <label x="center" y="20" id="et" text="Elapsed time" color="Graphics.COLOR_WHITE" justification="Graphics.TEXT_JUSTIFY_CENTER" />
     <label x="center" y="60" id="clock" text="Clock" color="Graphics.COLOR_WHITE" justification="Graphics.TEXT_JUSTIFY_CENTER" />
-    <!-- 
     <label x="center" y="110" id="counter_1"  font="Graphics.FONT_LARGE" color="Graphics.COLOR_WHITE" justification="Graphics.TEXT_JUSTIFY_CENTER" />
     <label x="center" y="150" id="counter_2" font="Graphics.FONT_LARGE" color="Graphics.COLOR_WHITE" justification="Graphics.TEXT_JUSTIFY_CENTER" />
-    -->
 </layout>
