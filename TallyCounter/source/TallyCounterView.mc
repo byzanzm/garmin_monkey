@@ -1,4 +1,5 @@
 using Toybox.WatchUi;
+using Toybox.Timer;
 
 class TallyCounterView extends WatchUi.View {
 
@@ -6,9 +7,16 @@ class TallyCounterView extends WatchUi.View {
         View.initialize();
     }
 
+    function timerCallback() {
+        WatchUi.requestUpdate();
+    }
+
     // Load your resources here
     function onLayout(dc) {
         setLayout(Rez.Layouts.MainLayout(dc));
+        
+        var myTimer = new Timer.Timer();
+        myTimer.start(method(:timerCallback), 5000, true);
     }
 
     // Called when this View is brought to the foreground. Restore
