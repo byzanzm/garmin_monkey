@@ -27,8 +27,21 @@ class ActiveView extends WatchUi.View {
         findDrawableById("clock").setText(szTime);
     
         findDrawableById("counter_1").setText(g_counter_1.toString());
-        
         findDrawableById("counter_2").setText(g_counter_2.toString());
+        findDrawableById("counter_3").setText(g_counter_3.toString());
+        findDrawableById("counter_4").setText(g_counter_4.toString());
+        
+        if (gActiveSet == 1) {
+            findDrawableById("plus_sign_1").setText("+");
+            findDrawableById("plus_sign_2").setText("+");
+            findDrawableById("plus_sign_3").setText(" ");
+            findDrawableById("plus_sign_4").setText(" ");        
+        } else {
+            findDrawableById("plus_sign_1").setText(" ");
+            findDrawableById("plus_sign_2").setText(" ");
+            findDrawableById("plus_sign_3").setText("+");
+            findDrawableById("plus_sign_4").setText("+");
+        }
         
         // Call the parent onUpdate function to redraw the layout
         View.onUpdate(dc);

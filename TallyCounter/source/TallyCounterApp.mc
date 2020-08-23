@@ -1,9 +1,11 @@
 using Toybox.Application;
 using Toybox.WatchUi;
 
-
+var gActiveSet = 1;
 var g_counter_1 = 0;
 var g_counter_2 = 0;
+var g_counter_3 = 0;
+var g_counter_4 = 0;
 
 class TallyCounterApp extends Application.AppBase {
 

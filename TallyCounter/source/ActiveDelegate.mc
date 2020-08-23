@@ -2,15 +2,21 @@ using Toybox.WatchUi;
 
 class ActiveDelegate extends WatchUi.BehaviorDelegate {
 
+    var activeSet = 1;
+
+
     function initialize() {
         BehaviorDelegate.initialize();
     }
 
     function onPreviousPage() {
         //increment first counter
-        g_counter_1++;
-        System.println(g_counter_1);
-        
+        if (gActiveSet == 1) {
+            g_counter_1++;
+        } else {
+            g_counter_3++;
+        }
+ 
         WatchUi.requestUpdate();
         
         return true;
@@ -18,7 +24,11 @@ class ActiveDelegate extends WatchUi.BehaviorDelegate {
 
     function onNextPage() {
         //increment second counter
-        g_counter_2++;
+        if (gActiveSet == 1) {
+            g_counter_2++;
+        } else {
+            g_counter_4++;
+        }
         
         WatchUi.requestUpdate();
         
@@ -26,6 +36,14 @@ class ActiveDelegate extends WatchUi.BehaviorDelegate {
     }
     
     function onSelect() {
+        if (gActiveSet == 1) {
+            gActiveSet = 2;
+        } else {
+            gActiveSet = 1;
+        }
+        
+        WatchUi.requestUpdate();
+       
     }
     
     function onBack() {
