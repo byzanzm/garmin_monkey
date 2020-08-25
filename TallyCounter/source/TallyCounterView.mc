@@ -8,7 +8,10 @@ class TallyCounterView extends WatchUi.View {
     }
 
     function timerCallback() {
-        System.println("timer");
+        //System.println("timer");
+        
+        g_et += 5;
+        
         WatchUi.requestUpdate();
     }
 

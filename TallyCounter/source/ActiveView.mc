@@ -25,7 +25,9 @@ class ActiveView extends WatchUi.View {
                         myTime.min.format("%02d") + ":" +
                         myTime.sec.format("%02d");
         findDrawableById("clock").setText(szTime);
-    
+        
+        findDrawableById("et").setText(g_et.toString() + " sec");
+        
         findDrawableById("counter_1").setText(g_counter_1.toString());
         findDrawableById("counter_2").setText(g_counter_2.toString());
         findDrawableById("counter_3").setText(g_counter_3.toString());
@@ -35,7 +37,8 @@ class ActiveView extends WatchUi.View {
             findDrawableById("plus_sign_1").setText("+");
             findDrawableById("plus_sign_2").setText("+");
             findDrawableById("plus_sign_3").setText(" ");
-            findDrawableById("plus_sign_4").setText(" ");        
+            findDrawableById("plus_sign_4").setText(" ");
+            //findDrawableById("plus_sign_3").setColor(Graphics.COLOR_DK_GRAY);        
         } else {
             findDrawableById("plus_sign_1").setText(" ");
             findDrawableById("plus_sign_2").setText(" ");
