@@ -14,16 +14,14 @@ class UserProfileSectionTwoView extends WatchUi.View {
 
     function initialize() {
         View.initialize();
-
-
     }
 
     function onLayout(dc) {
         setLayout(Rez.Layouts.SectionTwoLayout(dc));
                 
+        //get battery history/time
         var battHistory = Application.getApp().getProperty("battery");
         var battTimeStamp = Application.getApp().getProperty("battery_stamp");
-        var utcNow = Time.now().value();
         
         var timeDelta;
         var hh;
@@ -56,9 +54,8 @@ class UserProfileSectionTwoView extends WatchUi.View {
                     displayStr += burnRate.format("%0.1f") + "%";
                 }
             
-            //System.println(hh+"h"+mm+" "+burnRate.format("%0.2f"));
-                           
-               
+	            //System.println(hh+"h"+mm+" "+burnRate.format("%0.2f"));
+
                displayStr += "\n";
            }
         }

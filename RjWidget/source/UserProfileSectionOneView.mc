@@ -17,15 +17,6 @@ const SECONDS_PER_MINUTE = 60;
 
 class UserProfileSectionOneView extends WatchUi.View {
 
-    var mWeightPrefixStr = null;
-    var mWeightUnitsStr = null;
-    var mHeightPrefixStr = null;
-    var mGenderPrefixStr = null;
-    var mFemaleStr = null;
-    var mMaleStr = null;
-    var mHeightUnitsStr = null;
-    var mWakeTimePrefixStr = null;
-    var mItemNotSetStr = null;
     var mTempStr = null;
     var mHrStr = null;
     var battHistory = null;
@@ -34,38 +25,34 @@ class UserProfileSectionOneView extends WatchUi.View {
     function initialize() {
         View.initialize();
 
-        mWeightPrefixStr = WatchUi.loadResource(Rez.Strings.WeightPrefix);
-        mWeightUnitsStr = WatchUi.loadResource(Rez.Strings.GramUnits);
-        mHeightPrefixStr = WatchUi.loadResource(Rez.Strings.HeightPrefix);
-        mGenderPrefixStr = WatchUi.loadResource(Rez.Strings.GenderSpecifierPrefix);
-        mFemaleStr = WatchUi.loadResource(Rez.Strings.GenderFemale);
-        mMaleStr = WatchUi.loadResource(Rez.Strings.GenderMale);
-        mHeightUnitsStr = WatchUi.loadResource(Rez.Strings.CMUnits);
-        mWakeTimePrefixStr = WatchUi.loadResource(Rez.Strings.WakeTimePrefix);
-        mItemNotSetStr = WatchUi.loadResource(Rez.Strings.ItemNotSet);
+        // update battery history if more than one hour has passed
+        var batt_history_refresh = 3600;
         
+        // only keep 4 + new one 
+        var batt_history_keep = 4;
+
         Sensor.setEnabledSensors([Sensor.SENSOR_HEARTRATE, Sensor.SENSOR_TEMPERATURE]);
         Sensor.enableSensorEvents(method(:onSensor));
         
         var utc_now = Time.now().value();
         
-
         //get last time battery history taken
         battTimeStamp = Application.getApp().getProperty("battery_stamp");
 
         // update if more than 30 minutes has passed since
-        if (utc_now - battTimeStamp.reverse()[0] > 1800) {
+        if (utc_now - battTimeStamp.reverse()[0] > batt_history_refresh) {
 	        battHistory = Application.getApp().getProperty("battery");
 	        
 	        if (battHistory == null or battTimeStamp == null or battTimeStamp.size() != battHistory.size()) {
-	            System.println("null");
+	            // create empty array if either new or history/size mismatch
 	            battHistory = [];
 	            battTimeStamp = [];
-	        } else if (battHistory.size() > 4) {
-	            battHistory = battHistory.slice(-4,null);
-	            battTimeStamp = battTimeStamp.slice(-4,null);       
+	        } else if (battHistory.size() > batt_history_keep) {
+	            // if history is large, keep the last four
+	            battHistory = battHistory.slice(batt_history_keep * -1,null);
+	            battTimeStamp = battTimeStamp.slice(batt_history_keep * -1,null);
 	        } else {
-	            System.println("not null");
+	            // no special steps needed
 	        }
 		               
 	        System.println(battHistory);
@@ -79,7 +66,7 @@ class UserProfileSectionOneView extends WatchUi.View {
 	        Application.getApp().setProperty("battery", battHistory);
 	        Application.getApp().setProperty("battery_stamp", battTimeStamp);
         } else {
-	        System.println("less than 30 minute passed");
+	        System.println("less than 60 minute passed");
         }
         
         mTempStr = "--";
@@ -119,49 +106,15 @@ class UserProfileSectionOneView extends WatchUi.View {
 
         System.println("tempe:" +  mTempStr);
         System.println("HR:" +  mHrStr);
-        findDrawableById("GenderLabel").setText(mTempStr);
+        findDrawableById("TemperatureLabel").setText(mTempStr);
 
         var info = ActivityMonitor.getInfo();
         var mStepsStr = "Steps: " + info.steps.format("%d");
-        findDrawableById("HeightLabel").setText(mStepsStr);
+        findDrawableById("StepsLabel").setText(mStepsStr);
 
         var mBattStr = "Batt: " + System.getSystemStats().battery.format("%.1f");
-        findDrawableById("WakeTimeLabel").setText(mBattStr);
+        findDrawableById("BattLabel").setText(mBattStr);
 
-        //System.println(Application.getApp().getProperty("counter"));
-  /*
-        var profile = UserProfile.getProfile();
-
-        if (profile != null) {
-            var hours;
-            var minutes;
-            var seconds;
-            var string = mWeightPrefixStr + profile.weight.toString() + mWeightUnitsStr;
-            //findDrawableById("WeightLabel").setText(string);
-
-            string = mGenderPrefixStr;
-            if (profile.gender == 0) {
-                string += mFemaleStr;
-            } else {
-                string += mMaleStr;
-            }
-            //findDrawableById("GenderLabel").setText(string);
-
-            string = mHeightPrefixStr + profile.height.toString() + mHeightUnitsStr;
-            //findDrawableById("HeightLabel").setText(string);
-
-            string = mWakeTimePrefixStr;
-            if ((profile.wakeTime != null) && (profile.wakeTime.value() != null)) {
-                hours = profile.wakeTime.divide(SECONDS_PER_HOUR).value();
-                minutes = (profile.wakeTime.value() - (hours * SECONDS_PER_HOUR)) / SECONDS_PER_MINUTE;
-                seconds = profile.wakeTime.value() - (hours * SECONDS_PER_HOUR) - (minutes * SECONDS_PER_MINUTE);
-                string += hours.format("%02u") + ":" + minutes.format("%02u") + ":" + seconds.format("%02u");
-            } else {
-                string += mItemNotSetStr;
-            }
-            //findDrawableById("WakeTimeLabel").setText(string);
-        }
-*/
 
         View.onUpdate(dc);
     }
