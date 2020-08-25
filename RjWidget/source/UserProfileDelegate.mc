@@ -38,10 +38,10 @@ class BaseInputDelegate extends WatchUi.BehaviorDelegate {
         var inputDelegate = new BaseInputDelegate();
 
         if(page == 1) {
-            newView = new UserProfileSectionOneView();
+            newView = new UserProfileSectionTwoView();
         }
         else if(page == 2) {
-            newView = new UserProfileSectionTwoView();
+            newView = new UserProfileSectionOneView();
         }
         else if(page == 3) {
             newView = new UserProfileSectionThreeView();

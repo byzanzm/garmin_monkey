@@ -1,5 +1,5 @@
 <layout id="SectionTwoLayout">
 
-    <label id="BatteryHistory" x="center" y="35" font="Graphics.FONT_SMALL" justification="Graphics.TEXT_JUSTIFY_CENTER" />
+    <label id="BatteryHistory" x="center" y="5" font="Graphics.FONT_SMALL" justification="Graphics.TEXT_JUSTIFY_CENTER" />
     
 </layout>

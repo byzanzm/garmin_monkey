@@ -23,7 +23,7 @@ class UserProfileApp extends Application.AppBase {
 
     // Return the initial view of your application here
     function getInitialView() {
-        return [ new UserProfileSectionOneView(), new BaseInputDelegate() ];
+        return [ new UserProfileSectionTwoView(), new BaseInputDelegate() ];
     }
     
     function getGlanceView() {
