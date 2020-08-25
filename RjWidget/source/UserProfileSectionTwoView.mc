@@ -10,74 +10,64 @@ using Toybox.UserProfile;
 
 class UserProfileSectionTwoView extends WatchUi.View {
 
-    var mSleepTimePrefixStr = null;
-    var mRunStepLengthPrefixStr = null;
-    var mWalkStepLengthPrefixStr = null;
-    var mRestingHeartRatePrefixStr = null;
-    var mHeartRateUnitsStr = null;
-    var mStepLengthUnitsStr = null;
-    var mNotSetStr = null;
+    var displayStr = "";
 
     function initialize() {
         View.initialize();
 
-        mSleepTimePrefixStr = WatchUi.loadResource(Rez.Strings.SleepTimePrefix);
-        mRunStepLengthPrefixStr = WatchUi.loadResource(Rez.Strings.RunningStepLengthPrefix);
-        mWalkStepLengthPrefixStr = WatchUi.loadResource(Rez.Strings.WalkingStepLengthPrefix);
-        mRestingHeartRatePrefixStr = WatchUi.loadResource(Rez.Strings.RestingHeartRatePrefix);
-        mStepLengthUnitsStr = WatchUi.loadResource(Rez.Strings.MMUnits);
-        mNotSetStr = WatchUi.loadResource(Rez.Strings.ItemNotSet);
-        mHeartRateUnitsStr = WatchUi.loadResource(Rez.Strings.BPMUnits);
+
     }
 
     function onLayout(dc) {
         setLayout(Rez.Layouts.SectionTwoLayout(dc));
+                
+        var battHistory = Application.getApp().getProperty("battery");
+        var battTimeStamp = Application.getApp().getProperty("battery_stamp");
+        var utcNow = Time.now().value();
+        
+        var timeDelta;
+        var hh;
+        var mm;
+        var burnRate;
+        
+        //XXX
+        //battHistory = [90, 80, 78, 72, 89];
+        //battTimeStamp = [1598256504, 1598320566, 1598335013, 1598350935, 1598351935];
+        //battHistory = [90];
+        //battTimeStamp = [1598256504];
+        
+        displayStr = "";
+        for (var i=0; i<battHistory.size(); i++) {
+            if (i == 0) {               
+                displayStr += battHistory[i].format("%.1f") + "%, ";
+                displayStr += "\n";    
+            } else {
+                timeDelta = battTimeStamp[i] - battTimeStamp[i-1];
+                hh = timeDelta/3600;
+                mm = (timeDelta%3600)/60;
+               
+                displayStr += battHistory[i].format("%.1f") + "%, ";
+                displayStr += hh + "h" + mm + ", ";
+                
+                if (battHistory[i] >= battHistory[i-1]) {
+                    displayStr += "--";
+                } else {
+                    burnRate = (battHistory[i-1]-battHistory[i])/(timeDelta.toFloat()/3600);
+                    displayStr += burnRate.format("%0.1f") + "%";
+                }
+            
+            //System.println(hh+"h"+mm+" "+burnRate.format("%0.2f"));
+                           
+               
+               displayStr += "\n";
+           }
+        }
     }
+    
 
     function onUpdate(dc) {
-        var profile = UserProfile.getProfile();
-
-        if (profile != null) {
-            var hours;
-            var minutes;
-            var seconds;
-            var string = mSleepTimePrefixStr;
-
-            if ((profile.sleepTime != null) && (profile.sleepTime.value() != null)) {
-                hours = profile.sleepTime.divide(SECONDS_PER_HOUR).value();
-                minutes = (profile.sleepTime.value() - (hours * SECONDS_PER_HOUR)) / SECONDS_PER_MINUTE;
-                seconds = profile.sleepTime.value() - ( hours * SECONDS_PER_HOUR ) - ( minutes * SECONDS_PER_MINUTE);
-                string += hours.format("%02u") + ":" + minutes.format("%02u") + ":" + seconds.format("%02u");
-            } else {
-                string += mNotSetStr;
-            }
-            findDrawableById("SleepTimeLabel").setText(string);
-
-            string = mRunStepLengthPrefixStr;
-            if (profile.runningStepLength != null) {
-                string += profile.runningStepLength.toString() + mStepLengthUnitsStr;
-            } else {
-                string += mNotSetStr;
-            }
-
-            findDrawableById("RunStepLengthLabel").setText(string);
-
-            string = mWalkStepLengthPrefixStr;
-            if (profile.walkingStepLength != null) {
-                string += profile.walkingStepLength.toString() + mStepLengthUnitsStr;
-            } else {
-                string += mNotSetStr;
-            }
-            findDrawableById("WalkStepLengthLabel").setText(string);
-
-            string = mRestingHeartRatePrefixStr;
-            if (profile.restingHeartRate != null) {
-                string += profile.restingHeartRate.toString() + mHeartRateUnitsStr;
-            } else {
-                string += mNotSetStr;
-            }
-            findDrawableById("RestingHeartRateLabel").setText(string);
-        }
+        
+        findDrawableById("BatteryHistory").setText(displayStr);
 
         View.onUpdate(dc);
     }

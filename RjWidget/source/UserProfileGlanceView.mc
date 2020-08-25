@@ -33,9 +33,7 @@ class UserProfileGlanceView extends WatchUi.GlanceView {
         Sensor.enableSensorEvents(method(:onSensor));
         
         mTempStr = "--";
-        mHrStr = "--";
-        
-        System.println("Hello Monkey");   
+        mHrStr = "--"; 
         */  
     }
     
@@ -71,8 +69,8 @@ class UserProfileGlanceView extends WatchUi.GlanceView {
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(2,2, Graphics.FONT_SMALL, mySummaryText, Graphics.TEXT_JUSTIFY_LEFT);
-        dc.drawText(2,dc.getHeight()/3, Graphics.FONT_MEDIUM, mySummaryText_line2, Graphics.TEXT_JUSTIFY_LEFT);
+        dc.drawText(2,2, Graphics.FONT_LARGE, mySummaryText, Graphics.TEXT_JUSTIFY_LEFT);
+        dc.drawText(2,dc.getHeight()/2.1, Graphics.FONT_MEDIUM, mySummaryText_line2, Graphics.TEXT_JUSTIFY_LEFT);
       
     }
 }

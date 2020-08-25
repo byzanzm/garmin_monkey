@@ -9,6 +9,8 @@ using Toybox.Graphics;
 using Toybox.UserProfile;
 using Toybox.Sensor;
 using Toybox.ActivityMonitor;
+using Toybox.Application;
+using Toybox.Time;
 
 const SECONDS_PER_HOUR = 3600;
 const SECONDS_PER_MINUTE = 60;
@@ -26,6 +28,8 @@ class UserProfileSectionOneView extends WatchUi.View {
     var mItemNotSetStr = null;
     var mTempStr = null;
     var mHrStr = null;
+    var battHistory = null;
+    var battTimeStamp = null;
 
     function initialize() {
         View.initialize();
@@ -43,10 +47,46 @@ class UserProfileSectionOneView extends WatchUi.View {
         Sensor.setEnabledSensors([Sensor.SENSOR_HEARTRATE, Sensor.SENSOR_TEMPERATURE]);
         Sensor.enableSensorEvents(method(:onSensor));
         
+        var utc_now = Time.now().value();
+        
+
+        //get last time battery history taken
+        battTimeStamp = Application.getApp().getProperty("battery_stamp");
+
+        // update if more than 30 minutes has passed since
+        if (utc_now - battTimeStamp.reverse()[0] > 1800) {
+	        battHistory = Application.getApp().getProperty("battery");
+	        
+	        if (battHistory == null or battTimeStamp == null or battTimeStamp.size() != battHistory.size()) {
+	            System.println("null");
+	            battHistory = [];
+	            battTimeStamp = [];
+	        } else if (battHistory.size() > 4) {
+	            battHistory = battHistory.slice(-4,null);
+	            battTimeStamp = battTimeStamp.slice(-4,null);       
+	        } else {
+	            System.println("not null");
+	        }
+		               
+	        System.println(battHistory);
+	        System.println(battTimeStamp);
+	        
+	        //update battery history with current value
+	        battHistory.add(System.getSystemStats().battery.toFloat());
+	        battTimeStamp.add(Time.now().value());
+	        
+	        //set battery history back to storage
+	        Application.getApp().setProperty("battery", battHistory);
+	        Application.getApp().setProperty("battery_stamp", battTimeStamp);
+        } else {
+	        System.println("less than 30 minute passed");
+        }
+        
         mTempStr = "--";
         mHrStr = "--";
         
-        System.println("Hello Monkey");     
+        System.println("Hello Monkey");
+        
     }
     
     function onSensor(sensorInfo) {
@@ -88,7 +128,8 @@ class UserProfileSectionOneView extends WatchUi.View {
         var mBattStr = "Batt: " + System.getSystemStats().battery.format("%.1f");
         findDrawableById("WakeTimeLabel").setText(mBattStr);
 
- /*
+        //System.println(Application.getApp().getProperty("counter"));
+  /*
         var profile = UserProfile.getProfile();
 
         if (profile != null) {
