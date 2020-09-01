@@ -10,7 +10,7 @@ class TallyCounterView extends WatchUi.View {
     function timerCallback() {
         //System.println("timer");
         
-        g_et += 5;
+        //g_et += 15;
         
         WatchUi.requestUpdate();
     }
@@ -19,8 +19,8 @@ class TallyCounterView extends WatchUi.View {
     function onLayout(dc) {
         setLayout(Rez.Layouts.MainLayout(dc));
         
-        var myTimer = new Timer.Timer();
-        myTimer.start(method(:timerCallback), 5000, true);
+        //var myTimer = new Timer.Timer();
+        //myTimer.start(method(:timerCallback), 15000, true);
     }
 
     // Called when this View is brought to the foreground. Restore

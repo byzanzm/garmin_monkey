@@ -3,6 +3,8 @@ using Toybox.Timer;
 
 class ActiveView extends WatchUi.View {
 
+    var myTimer = null;
+
     function initialize() {
         View.initialize();
     }
@@ -10,13 +12,31 @@ class ActiveView extends WatchUi.View {
     // Load your resources here
     function onLayout(dc) {
         setLayout(Rez.Layouts.ActiveLayout(dc));
+        
+        myTimer = new Timer.Timer();
+    }
+    
+    function timerCallback() {
+        //System.println("timer");
+        
+        g_et += 1;
+        
+        //update every sec for the first five sec,
+        // after that every 20 sec
+        if (g_et < 6) {
+            WatchUi.requestUpdate();
+        } else if (g_et % 20 == 0) {
+            WatchUi.requestUpdate();
+        }
     }
 
     // Called when this View is brought to the foreground. Restore
     // the state of this View and prepare it to be shown. This includes
     // loading resources into memory.
     function onShow() {
+        myTimer.start(method(:timerCallback), 1000, true);
     }
+    
 
     // Update the view
     function onUpdate(dc) {
@@ -26,7 +46,10 @@ class ActiveView extends WatchUi.View {
                         myTime.sec.format("%02d");
         findDrawableById("clock").setText(szTime);
         
-        findDrawableById("et").setText(g_et.toString() + " sec");
+        var mm = g_et / 60;
+        var ss = g_et % 60;
+        
+        findDrawableById("et").setText("et " + mm.format("%02d") + ":" + ss.format("%02d"));
         
         findDrawableById("counter_1").setText(g_counter_1.toString());
         findDrawableById("counter_2").setText(g_counter_2.toString());
@@ -54,6 +77,7 @@ class ActiveView extends WatchUi.View {
     // state of this View here. This includes freeing resources from
     // memory.
     function onHide() {
+        myTimer.stop();
     }
 
 }
