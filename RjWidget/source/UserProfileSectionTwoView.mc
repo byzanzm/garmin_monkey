@@ -25,23 +25,27 @@ class UserProfileSectionTwoView extends WatchUi.View {
 	    // only keep 4 + new one 
 	    var batt_history_keep = 5;
     
+        // curr time and battery
         var utc_now = Time.now().value();
+        var batt_now = System.getSystemStats().battery.toFloat();
         
         //get last time battery history taken
         var battTimeStamp = Application.getApp().getProperty("battery_stamp");
+        var battHistory = Application.getApp().getProperty("battery");
 
-        // update if more than 30 minutes has passed since
-        if (utc_now - battTimeStamp.reverse()[0] > batt_history_refresh) {
-	        var battHistory = Application.getApp().getProperty("battery");
-	        
+        // update if more than 30 minutes has passed since or battery been charged
+        if (batt_now > battHistory.reverse()[0] or
+            utc_now - battTimeStamp.reverse()[0] > batt_history_refresh) {
 	        if (battHistory == null or battTimeStamp == null or battTimeStamp.size() != battHistory.size()) {
 	            // create empty array if either new or history/size mismatch
 	            battHistory = [];
 	            battTimeStamp = [];
+	            
 	        } else if (battHistory.size() > batt_history_keep) {
 	            // if history is large, keep the last four
 	            battHistory = battHistory.slice(batt_history_keep * -1,null);
 	            battTimeStamp = battTimeStamp.slice(batt_history_keep * -1,null);
+	            
 	        } else {
 	            // no special steps needed
 	        }
@@ -50,7 +54,7 @@ class UserProfileSectionTwoView extends WatchUi.View {
 	        System.println(battTimeStamp);
 	        
 	        //update battery history with current value
-	        battHistory.add(System.getSystemStats().battery.toFloat());
+	        battHistory.add(batt_now);
 	        battTimeStamp.add(Time.now().value());
 	        
 	        //set battery history back to storage
@@ -59,7 +63,6 @@ class UserProfileSectionTwoView extends WatchUi.View {
         } else {
 	        System.println("less than 60 minute passed");
         }
-        
     }
     
     function analyzeBattUsage() {

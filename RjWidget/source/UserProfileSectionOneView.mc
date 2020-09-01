@@ -17,8 +17,8 @@ const SECONDS_PER_MINUTE = 60;
 
 class UserProfileSectionOneView extends WatchUi.View {
 
-    var mTempStr = null;
-    var mHrStr = null;
+    var mTempStr = "--";
+    var mHrStr = "--";
 
 
     function initialize() {
@@ -26,9 +26,8 @@ class UserProfileSectionOneView extends WatchUi.View {
 
         //Sensor.setEnabledSensors([Sensor.SENSOR_HEARTRATE, Sensor.SENSOR_TEMPERATURE]);
         //Sensor.enableSensorEvents(method(:onSensor));
-
-        mTempStr = "--";
-        mHrStr = "--";
+        //mTempStr = "--";
+        //mHrStr = "--";
         
         System.println("Hello Monkey");
     }
@@ -71,7 +70,6 @@ class UserProfileSectionOneView extends WatchUi.View {
 
         var mBattStr = "Batt: " + System.getSystemStats().battery.format("%.1f");
         findDrawableById("BattLabel").setText(mBattStr);
-
 
         View.onUpdate(dc);
     }
