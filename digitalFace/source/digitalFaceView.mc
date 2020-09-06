@@ -8,13 +8,21 @@ class digitalFaceView extends WatchUi.WatchFace {
     //var batt_history_refresh = 599;
     var batt_history_refresh = 600;
     var maxDataAge = 3661;
-
+    
+    var battRateStr = ".";
 
     function initialize() {
         WatchFace.initialize();
         
         // ====================================
         //debug
+        /*
+        var x = Application.getApp().getProperty("battery");
+	    System.println(x);
+	    x = Application.getApp().getProperty("battery_stamp");
+        System.println(x);
+        */
+	    
         /*
         var utc_now = Time.now().value();
         var batt_now = System.getSystemStats().battery.toFloat();
@@ -131,22 +139,18 @@ class digitalFaceView extends WatchUi.WatchFace {
         if (battTimeStamp == null or utc_now < battTimeStamp[0]) {
 	        Application.getApp().setProperty("battery", [batt_now]);
 	        Application.getApp().setProperty("battery_stamp", [utc_now]);
-	        System.println("Init storage");
+
+	        battRateStr = "-i-";
 	        
-	        View.findDrawableById("BattHistory").setText("--");
-	        
-	        return;
-        }
-        
+        } else if (batt_now > battHistory.reverse()[0]) {
         // reset if battery been charged
-        if (batt_now > battHistory.reverse()[0]) {
+	        
 	        Application.getApp().setProperty("battery", [batt_now]);
 	        Application.getApp().setProperty("battery_stamp", [utc_now]);
 	        
-	        View.findDrawableById("BattHistory").setText("--");
-	        
-        // update if more than 10 minutes has passed since	        
+	        battRateStr = "-c-";
         } else if (utc_now - battTimeStamp.reverse()[0] >= batt_history_refresh) {
+        // update if more than 10 minutes has passed since
            
             battHistory.add(batt_now);
             battTimeStamp.add(utc_now);
@@ -169,11 +173,15 @@ class digitalFaceView extends WatchUi.WatchFace {
 	        var dataAge = (utc_now - battTimeStamp[0])/60;
 	        var battDiff = battHistory[0] - batt_now;
 	        var battRate = battDiff / (dataAge.toFloat()/60);
+	        
 	        System.println("rate: " + dataAge + "/" + battRate);
-	        View.findDrawableById("BattHistory").setText(dataAge + "/" + battRate.format("%.1f") + "%"); 
+	        //View.findDrawableById("BattHistory").setText(dataAge + "/" + battRate.format("%.1f") + "%");
+	        battRateStr = dataAge + "/" + battRate.format("%.1f") + "%"; 
         } else {
-            View.findDrawableById("BattHistory").setText("--");
         }
+        
+        
+        View.findDrawableById("BattHistory").setText(battRateStr);
         
         /*
         var x = "";
