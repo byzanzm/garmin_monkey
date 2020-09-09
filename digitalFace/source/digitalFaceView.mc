@@ -129,19 +129,23 @@ class digitalFaceView extends WatchUi.WatchFace {
         // curr time and battery
         var utc_now = Time.now().value();
         var batt_now = System.getSystemStats().battery.toFloat();
-                
+        
         //get last time battery history taken
         var battTimeStamp = Application.getApp().getProperty("battery_stamp");
         var battHistory = Application.getApp().getProperty("battery");
 
+        //System.println("now:" + utc_now);
+        //System.println("oldest data:" + battTimeStamp.reverse()[0]);
+        //System.println("oldest data:" + battTimeStamp[0]);
+
+
         //if nothing in storage, then init value
         //or if now is in the past (debugging only?)
-        if (battTimeStamp == null or utc_now < battTimeStamp[0]) {
+        if (battTimeStamp == null or utc_now < battTimeStamp.reverse()[0]) {
 	        Application.getApp().setProperty("battery", [batt_now]);
 	        Application.getApp().setProperty("battery_stamp", [utc_now]);
 
 	        battRateStr = "-i-";
-	        
         } else if (batt_now > battHistory.reverse()[0]) {
         // reset if battery been charged
 	        
@@ -154,13 +158,13 @@ class digitalFaceView extends WatchUi.WatchFace {
            
             battHistory.add(batt_now);
             battTimeStamp.add(utc_now);
-            System.println(utc_now);
             
             var oldestDataAge = utc_now - battTimeStamp[0];
             System.println("delta: " + oldestDataAge);
             if (oldestDataAge > maxDataAge) {
                 battTimeStamp = battTimeStamp.slice(1,null);
                 battHistory = battHistory.slice(1,null);
+                
             }
                 
             System.println(battTimeStamp + " " + battHistory);    
