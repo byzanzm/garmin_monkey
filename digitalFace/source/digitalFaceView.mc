@@ -7,9 +7,10 @@ using Toybox.Time.Gregorian;
 class digitalFaceView extends WatchUi.WatchFace {
     //var batt_history_refresh = 599;
     var batt_history_refresh = 600;
-    var maxDataAge = 3661;
+    var maxDataAge = 7800;
     
     var battRateStr = ".";
+    var battRate2Str = "";
 
     function initialize() {
         WatchFace.initialize();
@@ -156,36 +157,38 @@ class digitalFaceView extends WatchUi.WatchFace {
         } else if (utc_now - battTimeStamp.reverse()[0] >= batt_history_refresh) {
         // update if more than 10 minutes has passed since
            
+            // add latest value to array
             battHistory.add(batt_now);
             battTimeStamp.add(utc_now);
             
+            //trim old value from array if needed
             var oldestDataAge = utc_now - battTimeStamp[0];
-            System.println("delta: " + oldestDataAge);
             if (oldestDataAge > maxDataAge) {
                 battTimeStamp = battTimeStamp.slice(1,null);
                 battHistory = battHistory.slice(1,null);
-                
             }
-                
-            System.println(battTimeStamp + " " + battHistory);    
                 
             //update storage    
             Application.getApp().setProperty("battery", battHistory);
 	        Application.getApp().setProperty("battery_stamp", battTimeStamp);
+
+            System.println("delta: " + oldestDataAge);                
+            System.println(battTimeStamp + " " + battHistory);    
 	        
-	        //compute burn rate
-	        var dataAge = (utc_now - battTimeStamp[0])/60;
-	        var battDiff = battHistory[0] - batt_now;
-	        var battRate = battDiff / (dataAge.toFloat()/60);
-	        
-	        System.println("rate: " + dataAge + "/" + battRate);
-	        //View.findDrawableById("BattHistory").setText(dataAge + "/" + battRate.format("%.1f") + "%");
-	        battRateStr = dataAge + "/" + battRate.format("%.1f") + "%"; 
+	        //compute burn rate to oldest data
+            battRateStr = computeBurnRate(utc_now, batt_now, battTimeStamp[0], battHistory[0]);
+            
+            //compute burn rate to half oldest data
+	        if (battTimeStamp.size() > 4) {
+	            var p = battTimeStamp.size()/2;
+	            battRate2Str = computeBurnRate(utc_now, batt_now, battTimeStamp[p], battHistory[p]);
+	        }
+	         
         } else {
         }
         
-        
         View.findDrawableById("BattHistory").setText(battRateStr);
+        View.findDrawableById("BattHistory2").setText(battRate2Str);
         
         /*
         var x = "";
@@ -194,5 +197,35 @@ class digitalFaceView extends WatchUi.WatchFace {
         }
         View.findDrawableById("BattHistory").setText(x);
         */
+        
+         
+    }
+    
+    function computeBurnRate(utc_now, batt_now, utc_point, batt_point) {
+        //compute burn rate
+        var dataAge = (utc_now - utc_point)/60;
+        var battDiff = batt_point - batt_now;
+        System.println("x "+dataAge);
+        
+        var battRate = 0;
+        if (dataAge > 0) {
+            var battRate = battDiff / (dataAge.toFloat()/60);
+        }
+        
+        System.println("rate: " + dataAge + "/" + battRate);
+	    //View.findDrawableById("BattHistory").setText(dataAge + "/" + battRate.format("%.1f") + "%");
+	    return dataAge + "/" + battRate.format("%.1f") + "%";
+        
+        /*
+                //compute burn rate
+        var dataAge = (utc_now - battTimeStamp[0])/60;
+        var battDiff = battHistory[0] - batt_now;
+        System.println("x "+dataAge);
+        
+        var battRate = 0;
+        if (dataAge > 0) {
+            var battRate = battDiff / (dataAge.toFloat()/60);
+        }*/
+    
     }
 }
