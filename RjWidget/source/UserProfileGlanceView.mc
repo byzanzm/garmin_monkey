@@ -28,17 +28,16 @@ class UserProfileGlanceView extends WatchUi.GlanceView {
     function initialize() {
         GlanceView.initialize();
  
- /*
+        /*
         Sensor.setEnabledSensors([Sensor.SENSOR_HEARTRATE, Sensor.SENSOR_TEMPERATURE]);
         Sensor.enableSensorEvents(method(:onSensor));
-        
+
         mTempStr = "--";
         mHrStr = "--"; 
         */  
     }
-    
-    function onSensor(sensorInfo) {
 
+    function onSensor(sensorInfo) {
         mTempStr = "Temp: --";
         mHrStr = "HR: --";
 
@@ -48,9 +47,7 @@ class UserProfileGlanceView extends WatchUi.GlanceView {
         if (sensorInfo.temperature != null) {
             mHrStr = "HR: " + sensorInfo.heartRate;
         } 
-        
         WatchUi.requestUpdate();
-        
     }
 
 
@@ -61,16 +58,15 @@ class UserProfileGlanceView extends WatchUi.GlanceView {
         var myTime = System.getClockTime(); // ClockTime object
         mySummaryText = ":" + myTime.sec.format("%02d");
 
-        mySummaryText += ", " + System.getSystemStats().battery.format("%.1f") +"%";        
-        
+        mySummaryText += ", " + System.getSystemStats().battery.format("%.1f") +"%";
+
         var info = ActivityMonitor.getInfo();
         mySummaryText_line2 +=  info.steps.format("%d") + " steps";
-        
+
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(2,2, Graphics.FONT_LARGE, mySummaryText, Graphics.TEXT_JUSTIFY_LEFT);
         dc.drawText(2,dc.getHeight()/2.1, Graphics.FONT_MEDIUM, mySummaryText_line2, Graphics.TEXT_JUSTIFY_LEFT);
-      
     }
 }
