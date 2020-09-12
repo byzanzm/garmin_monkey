@@ -8,7 +8,7 @@ class digitalFaceView extends WatchUi.WatchFace {
     //var batt_history_refresh = 6;
     //var maxDataAge = 78;
     var batt_history_refresh = 600;
-    var maxDataAge = 7800;
+    var maxDataAge = 11400;
 
     var battRateStr = ".";
     var battRate2Str = "";
@@ -58,8 +58,8 @@ class digitalFaceView extends WatchUi.WatchFace {
 
         drawDate();
 
-        View.findDrawableById("Batt").setText(" " + System.getSystemStats().battery.format("%.1f") + "%");
-        
+        drawBattLevel();
+
         drawStatus();
         
         battHistory();
@@ -95,6 +95,19 @@ class digitalFaceView extends WatchUi.WatchFace {
         var info = Gregorian.info(Time.now(), Time.FORMAT_LONG);
         var dateStr = Lang.format("$1$ $2$", [info.day_of_week, info.day]);
         View.findDrawableById("Date").setText(dateStr + " ");
+    }
+
+    function drawBattLevel () {
+        var battLevel = System.getSystemStats().battery;
+
+        View.findDrawableById("Batt").setColor(Graphics.COLOR_WHITE);
+        if (battLevel > 65) {
+            View.findDrawableById("Batt").setColor(Graphics.COLOR_GREEN);
+        } else if (battLevel < 45) {
+            View.findDrawableById("Batt").setColor(Graphics.COLOR_YELLOW);
+        }
+
+        View.findDrawableById("Batt").setText(" " + System.getSystemStats().battery.format("%.1f") + "%");
     }
 
     function drawStatus() {
@@ -189,7 +202,7 @@ class digitalFaceView extends WatchUi.WatchFace {
 
             //compute burn rate to half oldest data
             if (battTimeStamp.size() > 4) {
-                var p = battTimeStamp.size()/2;
+                var p = battTimeStamp.size()/3;
                 battRate2Str = computeBurnRate(utc_now, batt_now, battTimeStamp[p], battHistory[p]);
             }
         } else {
