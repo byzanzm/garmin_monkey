@@ -58,14 +58,16 @@ class digitalFaceView extends WatchUi.WatchFace {
 
         drawDate();
 
-        drawBattLevel();
+        //drawBattLevel();
 
         drawStatus();
-        
+
         battHistory();
 
         // Call the parent onUpdate function to redraw the layout
         View.onUpdate(dc);
+
+        drawBattLevelG(dc);
     }
 
     // Called when this View is removed from the screen. Save the
@@ -108,6 +110,39 @@ class digitalFaceView extends WatchUi.WatchFace {
         }
 
         View.findDrawableById("Batt").setText(" " + System.getSystemStats().battery.format("%.1f") + "%");
+    }
+
+    function drawBattLevelG(dc) {
+        var yPos = 165;
+        var ySize = 6;
+        var xStart = 45;
+        var xEnd = 160;
+
+        var battLevel = System.getSystemStats().battery;
+
+        var color = Graphics.COLOR_WHITE;
+        var xSize = 10;
+        if (battLevel > 75) {
+            color = Graphics.COLOR_GREEN;
+            var minLevel = 75;
+            var sizeLevel = 25; //100-75
+
+            xSize = ((battLevel-minLevel)/sizeLevel)*xEnd;
+        } else if (battLevel < 40) {
+            color = Graphics.COLOR_RED;
+            var minLevel = 0;
+            var sizeLevel = 40; //40-0
+
+            xSize = ((battLevel-minLevel)/sizeLevel)*xEnd;
+        } else {
+            var minLevel = 40;
+            var sizeLevel = 35; //75-40
+
+            xSize = ((battLevel-minLevel)/sizeLevel)*xEnd;
+        }
+
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+        dc.fillRectangle(xStart, yPos, xSize, ySize);
     }
 
     function drawStatus() {
