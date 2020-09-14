@@ -68,6 +68,8 @@ class digitalFaceView extends WatchUi.WatchFace {
         View.onUpdate(dc);
 
         drawBattLevelG(dc);
+
+        drawMinuteGraphics(dc);
     }
 
     // Called when this View is removed from the screen. Save the
@@ -262,4 +264,16 @@ class digitalFaceView extends WatchUi.WatchFace {
 
         return dataAge + "__" + battRate.format("%.1f") + "%";
     }
+
+    function drawMinuteGraphics(dc) {
+        var clockTime = System.getClockTime();
+
+        var pos = 360-(clockTime.min*6);
+        pos = pos + 90;
+
+        dc.setPenWidth(25);
+        dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
+        dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, dc.getHeight()/2, Graphics.ARC_COUNTER_CLOCKWISE, pos-10, pos+10);
+    }
+
 }
