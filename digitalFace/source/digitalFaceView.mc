@@ -116,7 +116,7 @@ class digitalFaceView extends WatchUi.WatchFace {
 
     function drawBattLevelG(dc) {
         var yPos = 165;
-        var ySize = 6;
+        var ySize = 2;
         var xStart = 45;
         var xEnd = 160;
 
@@ -145,6 +145,7 @@ class digitalFaceView extends WatchUi.WatchFace {
 
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
         dc.fillRectangle(xStart, yPos, xSize, ySize);
+        dc.fillRectangle(xStart+xSize, yPos-5, 3, 14);
     }
 
     function drawStatus() {
@@ -271,9 +272,13 @@ class digitalFaceView extends WatchUi.WatchFace {
         var pos = 360-(clockTime.min*6);
         pos = pos + 90;
 
-        dc.setPenWidth(25);
+        dc.setPenWidth(10);
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, dc.getHeight()/2, Graphics.ARC_COUNTER_CLOCKWISE, pos-45, pos+45);
+
+        dc.setPenWidth(30);
         dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
-        dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, dc.getHeight()/2, Graphics.ARC_COUNTER_CLOCKWISE, pos-10, pos+10);
+        dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, dc.getHeight()/2, Graphics.ARC_COUNTER_CLOCKWISE, pos-1, pos+1);
     }
 
 }
