@@ -12,6 +12,8 @@ class digitalFaceView extends WatchUi.WatchFace {
 
     var battRateStr = ".";
     var battRate2Str = "";
+    var burnRate1 = [];
+    var burnRate2 = [];
 
     function initialize() {
         WatchFace.initialize();
@@ -30,10 +32,11 @@ class digitalFaceView extends WatchUi.WatchFace {
         var batt_now = System.getSystemStats().battery.toFloat();
         
          
-        var battTimeStamp = [utc_now - (batt_history_refresh*3),
+        var battTimeStamp = [utc_now - (batt_history_refresh*4),
+                         utc_now - (batt_history_refresh*3),
                          utc_now - (batt_history_refresh*2),
                          utc_now - (batt_history_refresh*1),];
-        var battHistory = [batt_now + 0.2, batt_now + 0.1, batt_now + 0.05];
+        var battHistory = [batt_now + 1.8, batt_now + 1.2, batt_now + 1.1, batt_now + 0.05];
         Application.getApp().setProperty("battery", battHistory);
         Application.getApp().setProperty("battery_stamp", battTimeStamp);
         */
@@ -70,6 +73,8 @@ class digitalFaceView extends WatchUi.WatchFace {
         drawBattLevelG(dc);
 
         drawMinuteGraphics(dc);
+
+        drawBurnrate(dc);
     }
 
     // Called when this View is removed from the screen. Save the
@@ -227,25 +232,27 @@ class digitalFaceView extends WatchUi.WatchFace {
             System.println(battTimeStamp + " " + battHistory);    
 
             //compute burn rate to oldest data
-            var burnRate = computeBurnRate(utc_now, batt_now, battTimeStamp[0], battHistory[0]);
-            battRateStr = burnRate[0] + "__" + burnRate[1].format("%.1f") + "%";
+            burnRate1 = computeBurnRate(utc_now, batt_now, battTimeStamp[0], battHistory[0]);
+            battRateStr = burnRate1[0] + "__" + burnRate1[1].format("%.1f") + "%";
 
             //compute burn rate to half oldest data
             if (battTimeStamp.size() > 4) {
                 var p = battTimeStamp.size()/2;
-                var burnRate = computeBurnRate(utc_now, batt_now, battTimeStamp[p], battHistory[p]);
-                battRate2Str = burnRate[0] + "__" + burnRate[1].format("%.1f") + "%";
+                burnRate2 = computeBurnRate(utc_now, batt_now, battTimeStamp[p], battHistory[p]);
+                //battRate2Str = burnRate2[1].format("%.1f") + "% " +  burnRate2[0];
+                battRate2Str = " " + burnRate2[0];
             }
         } else if (battRateStr.equals(".") and battTimeStamp.size() > 0) {
             //compute burn rate to oldest data
-            var burnRate = computeBurnRate(utc_now, batt_now, battTimeStamp[0], battHistory[0]);
-            battRateStr = burnRate[0] + "__" + burnRate[1].format("%.1f") + "%";
+            burnRate1 = computeBurnRate(utc_now, batt_now, battTimeStamp[0], battHistory[0]);
+            battRateStr = burnRate1[0] + "__" + burnRate1[1].format("%.1f") + "%";
 
             //compute burn rate to half oldest data
             if (battTimeStamp.size() > 4) {
                 var p = battTimeStamp.size()/3;
-                var burnRate = computeBurnRate(utc_now, batt_now, battTimeStamp[p], battHistory[p]);
-                battRate2Str = burnRate[0] + "__" + burnRate[1].format("%.1f") + "%";
+                burnRate2 = computeBurnRate(utc_now, batt_now, battTimeStamp[p], battHistory[p]);
+                //battRate2Str = burnRate2[0] + "__" + burnRate2[1].format("%.1f") + "%";
+                battRate2Str = " " + burnRate2[0];
             }
         } else {
         }
@@ -268,6 +275,29 @@ class digitalFaceView extends WatchUi.WatchFace {
         System.println("rate: " + dataAge + "/" + battRate);
 
         return [dataAge, battRate];
+    }
+
+    function drawBurnrate(dc) {
+        var xPos = 130;
+        var yPos = 200;
+        var xSize = 5;
+        var yMax = 20;
+
+        var br = burnRate2[1];
+
+        var yVal = br - br.toNumber();
+        var xVal = (br.toNumber()+1) * xSize;
+        System.println("yv " + xVal);
+
+        var ySize = (yVal * yMax) + 1;
+
+        if (br > 0.8) {
+            dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+        } else {
+            dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
+        }
+
+        dc.fillRectangle(xPos, yPos, xVal, ySize);
     }
 
     function drawMinuteGraphics(dc) {
