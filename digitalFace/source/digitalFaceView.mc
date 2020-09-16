@@ -33,7 +33,7 @@ class digitalFaceView extends WatchUi.WatchFace {
         var battTimeStamp = [utc_now - (batt_history_refresh*3),
                          utc_now - (batt_history_refresh*2),
                          utc_now - (batt_history_refresh*1),];
-        var battHistory = [batt_now + 5, batt_now + 4, batt_now +2];
+        var battHistory = [batt_now + 0.2, batt_now + 0.1, batt_now + 0.05];
         Application.getApp().setProperty("battery", battHistory);
         Application.getApp().setProperty("battery_stamp", battTimeStamp);
         */
@@ -115,7 +115,7 @@ class digitalFaceView extends WatchUi.WatchFace {
     }
 
     function drawBattLevelG(dc) {
-        var yPos = 165;
+        var yPos = 167;
         var ySize = 2;
         var xStart = 45;
         var xEnd = 160;
@@ -145,7 +145,7 @@ class digitalFaceView extends WatchUi.WatchFace {
 
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
         dc.fillRectangle(xStart, yPos, xSize, ySize);
-        dc.fillRectangle(xStart+xSize, yPos-5, 3, 14);
+        dc.fillRectangle(xStart+xSize, yPos-5, 3, 12);
     }
 
     function drawStatus() {
@@ -227,21 +227,25 @@ class digitalFaceView extends WatchUi.WatchFace {
             System.println(battTimeStamp + " " + battHistory);    
 
             //compute burn rate to oldest data
-            battRateStr = computeBurnRate(utc_now, batt_now, battTimeStamp[0], battHistory[0]);
+            var burnRate = computeBurnRate(utc_now, batt_now, battTimeStamp[0], battHistory[0]);
+            battRateStr = burnRate[0] + "__" + burnRate[1].format("%.1f") + "%";
 
             //compute burn rate to half oldest data
             if (battTimeStamp.size() > 4) {
                 var p = battTimeStamp.size()/2;
-                battRate2Str = computeBurnRate(utc_now, batt_now, battTimeStamp[p], battHistory[p]);
+                var burnRate = computeBurnRate(utc_now, batt_now, battTimeStamp[p], battHistory[p]);
+                battRate2Str = burnRate[0] + "__" + burnRate[1].format("%.1f") + "%";
             }
         } else if (battRateStr.equals(".") and battTimeStamp.size() > 0) {
             //compute burn rate to oldest data
-            battRateStr = computeBurnRate(utc_now, batt_now, battTimeStamp[0], battHistory[0]);
+            var burnRate = computeBurnRate(utc_now, batt_now, battTimeStamp[0], battHistory[0]);
+            battRateStr = burnRate[0] + "__" + burnRate[1].format("%.1f") + "%";
 
             //compute burn rate to half oldest data
             if (battTimeStamp.size() > 4) {
                 var p = battTimeStamp.size()/3;
-                battRate2Str = computeBurnRate(utc_now, batt_now, battTimeStamp[p], battHistory[p]);
+                var burnRate = computeBurnRate(utc_now, batt_now, battTimeStamp[p], battHistory[p]);
+                battRate2Str = burnRate[0] + "__" + burnRate[1].format("%.1f") + "%";
             }
         } else {
         }
@@ -263,7 +267,7 @@ class digitalFaceView extends WatchUi.WatchFace {
         
         System.println("rate: " + dataAge + "/" + battRate);
 
-        return dataAge + "__" + battRate.format("%.1f") + "%";
+        return [dataAge, battRate];
     }
 
     function drawMinuteGraphics(dc) {
@@ -277,7 +281,7 @@ class digitalFaceView extends WatchUi.WatchFace {
         dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, dc.getHeight()/2, Graphics.ARC_COUNTER_CLOCKWISE, pos-45, pos+45);
 
         dc.setPenWidth(30);
-        dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, dc.getHeight()/2, Graphics.ARC_COUNTER_CLOCKWISE, pos-1, pos+1);
     }
 
