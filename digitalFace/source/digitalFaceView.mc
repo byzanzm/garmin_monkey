@@ -74,7 +74,12 @@ class digitalFaceView extends WatchUi.WatchFace {
 
         drawMinuteGraphics(dc);
 
-        drawBurnrate(dc);
+        if (burnRate1.size() > 0) {
+            drawBurnrate(dc, 130, 200, burnRate1[1]);
+        }
+        if (burnRate2.size() > 0) {
+            drawBurnrate(dc, 80, 200, burnRate2[1]);
+        }
     }
 
     // Called when this View is removed from the screen. Save the
@@ -201,7 +206,10 @@ class digitalFaceView extends WatchUi.WatchFace {
             Application.getApp().setProperty("battery_stamp", [utc_now]);
 
             battRateStr = "-i-";
+            burnRate1 = [];
+
             battRate2Str = "";
+            burnRate2 = [];
         } else if (batt_now > battHistory.reverse()[0]) {
         // reset if battery been charged
 
@@ -209,7 +217,10 @@ class digitalFaceView extends WatchUi.WatchFace {
             Application.getApp().setProperty("battery_stamp", [utc_now]);
 
             battRateStr = "-c-";
+            burnRate1 = [];
+
             battRate2Str = "";
+            burnRate2 = [];
         } else if (utc_now - battTimeStamp.reverse()[0] >= batt_history_refresh) {
         // update if more than 10 minutes has passed since
 
@@ -233,32 +244,34 @@ class digitalFaceView extends WatchUi.WatchFace {
 
             //compute burn rate to oldest data
             burnRate1 = computeBurnRate(utc_now, batt_now, battTimeStamp[0], battHistory[0]);
-            battRateStr = burnRate1[0] + "__" + burnRate1[1].format("%.1f") + "%";
+            //battRateStr = burnRate1[0] + "__" + burnRate1[1].format("%.1f") + "%";
+            battRateStr = burnRate1[0] + " " + burnRate1[1].format("%.1f") + "%";
 
             //compute burn rate to half oldest data
             if (battTimeStamp.size() > 4) {
                 var p = battTimeStamp.size()/2;
                 burnRate2 = computeBurnRate(utc_now, batt_now, battTimeStamp[p], battHistory[p]);
                 //battRate2Str = burnRate2[1].format("%.1f") + "% " +  burnRate2[0];
-                battRate2Str = " " + burnRate2[0];
+                battRate2Str = burnRate2[0] + " " + burnRate2[1].format("%.1f") + "%";
             }
         } else if (battRateStr.equals(".") and battTimeStamp.size() > 0) {
             //compute burn rate to oldest data
             burnRate1 = computeBurnRate(utc_now, batt_now, battTimeStamp[0], battHistory[0]);
-            battRateStr = burnRate1[0] + "__" + burnRate1[1].format("%.1f") + "%";
+            //battRateStr = burnRate1[0] + "__" + burnRate1[1].format("%.1f") + "%";
+            battRateStr = burnRate1[0] + " " + burnRate1[1].format("%.1f") + "%";
 
             //compute burn rate to half oldest data
             if (battTimeStamp.size() > 4) {
                 var p = battTimeStamp.size()/3;
                 burnRate2 = computeBurnRate(utc_now, batt_now, battTimeStamp[p], battHistory[p]);
                 //battRate2Str = burnRate2[0] + "__" + burnRate2[1].format("%.1f") + "%";
-                battRate2Str = " " + burnRate2[0];
+                battRate2Str = burnRate2[0] + " " + burnRate2[1].format("%.1f") + "%";
             }
         } else {
         }
 
-        View.findDrawableById("BattHistory").setText(battRateStr);
-        View.findDrawableById("BattHistory2").setText(battRate2Str);
+        View.findDrawableById("BattHistory").setText(battRate2Str + " " + battRateStr);
+        //View.findDrawableById("BattHistory2").setText(battRate2Str);
     }
 
     function computeBurnRate(utc_now, batt_now, utc_point, batt_point) {
@@ -277,27 +290,30 @@ class digitalFaceView extends WatchUi.WatchFace {
         return [dataAge, battRate];
     }
 
-    function drawBurnrate(dc) {
-        var xPos = 130;
-        var yPos = 200;
+    function drawBurnrate(dc, xPos, yPos, br) {
         var xSize = 5;
         var yMax = 20;
 
-        var br = burnRate2[1];
+        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+        dc.fillRectangle(xPos, yPos, xSize, yMax);
 
         var yVal = br - br.toNumber();
         var xVal = (br.toNumber()+1) * xSize;
-        System.println("yv " + xVal);
 
-        var ySize = (yVal * yMax) + 1;
+        //if more than 1% we always show full height bar
+        var ySize = yMax+1;
+        if (br < 1) {
+            ySize = (yVal * yMax) + 1;
+        }
 
+        //red color if br is more than 0.8%
         if (br > 0.8) {
             dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
         } else {
             dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
         }
 
-        dc.fillRectangle(xPos, yPos, xVal, ySize);
+        dc.fillRectangle(xPos, yPos+yMax-ySize+1, xVal, ySize);
     }
 
     function drawMinuteGraphics(dc) {
