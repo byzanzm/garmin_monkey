@@ -32,11 +32,13 @@ class digitalFaceView extends WatchUi.WatchFace {
         var batt_now = System.getSystemStats().battery.toFloat();
         
          
-        var battTimeStamp = [utc_now - (batt_history_refresh*4),
+        var battTimeStamp = [utc_now - (batt_history_refresh*50),
+                         utc_now - (batt_history_refresh*40),
                          utc_now - (batt_history_refresh*3),
                          utc_now - (batt_history_refresh*2),
                          utc_now - (batt_history_refresh*1),];
-        var battHistory = [batt_now + 1.8, batt_now + 1.2, batt_now + 1.1, batt_now + 0.05];
+        var battHistory = [batt_now + 2, batt_now + 1.8, batt_now + 1.2,
+                           batt_now + 1.1, batt_now + 0.05];
         Application.getApp().setProperty("battery", battHistory);
         Application.getApp().setProperty("battery_stamp", battTimeStamp);
         */
@@ -129,9 +131,11 @@ class digitalFaceView extends WatchUi.WatchFace {
         var ySize = 2;
         var xStart = 45;
         var xEnd = 160;
+        var markerSize = [3,12];
 
         var battLevel = System.getSystemStats().battery;
 
+        // figure out the color for battery state
         var color = Graphics.COLOR_WHITE;
         var xSize = 10;
         if (battLevel > 75) {
@@ -153,9 +157,16 @@ class digitalFaceView extends WatchUi.WatchFace {
             xSize = ((battLevel-minLevel)/sizeLevel)*xEnd;
         }
 
+        //draw marker for start,mid,end state
+        dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
+        dc.fillRectangle(xStart, yPos-5, markerSize[0], markerSize[1]);
+        dc.fillRectangle(xStart+xEnd, yPos-5, markerSize[0], markerSize[1]);
+        dc.fillRectangle(xStart+(xEnd/2), yPos-5, markerSize[0], markerSize[1]);
+
+        //draw the battery level
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
         dc.fillRectangle(xStart, yPos, xSize, ySize);
-        dc.fillRectangle(xStart+xSize, yPos-5, 3, 12);
+        //dc.fillRectangle(xStart+xSize, yPos-5, markerSize[0], markerSize[1]);
     }
 
     function drawStatus() {
@@ -230,9 +241,10 @@ class digitalFaceView extends WatchUi.WatchFace {
 
             //trim old value from array if needed
             var oldestDataAge = utc_now - battTimeStamp[0];
-            if (oldestDataAge > maxDataAge) {
+            while (battTimeStamp.size() >4 and oldestDataAge > maxDataAge) {
                 battTimeStamp = battTimeStamp.slice(1,null);
                 battHistory = battHistory.slice(1,null);
+                System.println("trim");
             }
 
             //update storage    
@@ -248,6 +260,7 @@ class digitalFaceView extends WatchUi.WatchFace {
             battRateStr = burnRate1[0] + " " + burnRate1[1].format("%.1f") + "%";
 
             //compute burn rate to half oldest data
+            burnRate2 =[];
             if (battTimeStamp.size() > 4) {
                 var p = battTimeStamp.size()/2;
                 burnRate2 = computeBurnRate(utc_now, batt_now, battTimeStamp[p], battHistory[p]);
@@ -261,6 +274,7 @@ class digitalFaceView extends WatchUi.WatchFace {
             battRateStr = burnRate1[0] + " " + burnRate1[1].format("%.1f") + "%";
 
             //compute burn rate to half oldest data
+            burnRate2 =[];
             if (battTimeStamp.size() > 4) {
                 var p = battTimeStamp.size()/3;
                 burnRate2 = computeBurnRate(utc_now, batt_now, battTimeStamp[p], battHistory[p]);
@@ -291,7 +305,7 @@ class digitalFaceView extends WatchUi.WatchFace {
     }
 
     function drawBurnrate(dc, xPos, yPos, br) {
-        var xSize = 5;
+        var xSize = 10;
         var yMax = 20;
 
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
