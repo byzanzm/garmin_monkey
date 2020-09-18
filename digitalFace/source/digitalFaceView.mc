@@ -77,10 +77,10 @@ class digitalFaceView extends WatchUi.WatchFace {
         drawMinuteGraphics(dc);
 
         if (burnRate1.size() > 0) {
-            drawBurnrate(dc, 130, 200, burnRate1[1]);
+            drawBurnrate(dc, 130, 200, burnRate1[1], burnRate1[0], "R");
         }
         if (burnRate2.size() > 0) {
-            drawBurnrate(dc, 80, 200, burnRate2[1]);
+            drawBurnrate(dc, 120, 200, burnRate2[1], burnRate2[0], "L");
         }
     }
 
@@ -241,10 +241,12 @@ class digitalFaceView extends WatchUi.WatchFace {
 
             //trim old value from array if needed
             var oldestDataAge = utc_now - battTimeStamp[0];
-            while (battTimeStamp.size() >4 and oldestDataAge > maxDataAge) {
+            while (battTimeStamp.size() > 5 and oldestDataAge > maxDataAge) {
                 battTimeStamp = battTimeStamp.slice(1,null);
                 battHistory = battHistory.slice(1,null);
-                System.println("trim");
+                System.println("trim " + battTimeStamp[0]);
+
+                oldestDataAge = utc_now - battTimeStamp[0];
             }
 
             //update storage    
@@ -262,7 +264,7 @@ class digitalFaceView extends WatchUi.WatchFace {
             //compute burn rate to half oldest data
             burnRate2 =[];
             if (battTimeStamp.size() > 4) {
-                var p = battTimeStamp.size()/2;
+                var p = battTimeStamp.size()/3;
                 burnRate2 = computeBurnRate(utc_now, batt_now, battTimeStamp[p], battHistory[p]);
                 //battRate2Str = burnRate2[1].format("%.1f") + "% " +  burnRate2[0];
                 battRate2Str = burnRate2[0] + " " + burnRate2[1].format("%.1f") + "%";
@@ -304,12 +306,17 @@ class digitalFaceView extends WatchUi.WatchFace {
         return [dataAge, battRate];
     }
 
-    function drawBurnrate(dc, xPos, yPos, br) {
+    function drawBurnrate(dc, xPos, yPos, br, timePeriod, growDir) {
         var xSize = 10;
         var yMax = 20;
 
+        //draw bar background
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        dc.fillRectangle(xPos, yPos, xSize, yMax);
+        if (growDir.equals("L")) {
+            dc.fillRectangle(xPos-xSize, yPos, xSize, yMax);
+        } else{
+            dc.fillRectangle(xPos, yPos, xSize, yMax);
+        }
 
         var yVal = br - br.toNumber();
         var xVal = (br.toNumber()+1) * xSize;
@@ -327,7 +334,23 @@ class digitalFaceView extends WatchUi.WatchFace {
             dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
         }
 
-        dc.fillRectangle(xPos, yPos+yMax-ySize+1, xVal, ySize);
+        // draw burn rate bar
+        if (growDir.equals("L")) {
+            dc.fillRectangle(xPos-xVal, yPos+yMax-ySize+1, xVal, ySize);
+        } else {
+            dc.fillRectangle(xPos, yPos+yMax-ySize+1, xVal, ySize);
+        }
+
+        // draw time period bar
+        /*
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        if (growDir.equals("L")) {
+            dc.fillRectangle(xPos-timePeriod, yPos - 5, timePeriod, 1);
+        } else {
+            dc.fillRectangle(xPos, yPos - 5, timePeriod, 1);
+        }
+        */
+
     }
 
     function drawMinuteGraphics(dc) {
