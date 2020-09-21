@@ -27,13 +27,13 @@ class digitalFaceView extends WatchUi.WatchFace {
         System.println(x);
         */
 
-        /*
+        //*
         var utc_now = Time.now().value();
         var batt_now = System.getSystemStats().battery.toFloat();
         
          
-        var battTimeStamp = [utc_now - (batt_history_refresh*50),
-                         utc_now - (batt_history_refresh*40),
+        var battTimeStamp = [utc_now - (batt_history_refresh*12),
+                         utc_now - (batt_history_refresh*6),
                          utc_now - (batt_history_refresh*3),
                          utc_now - (batt_history_refresh*2),
                          utc_now - (batt_history_refresh*1),];
@@ -41,7 +41,7 @@ class digitalFaceView extends WatchUi.WatchFace {
                            batt_now + 1.1, batt_now + 0.05];
         Application.getApp().setProperty("battery", battHistory);
         Application.getApp().setProperty("battery_stamp", battTimeStamp);
-        */
+        //*/
         // ====================================
         
     }
@@ -74,14 +74,17 @@ class digitalFaceView extends WatchUi.WatchFace {
 
         drawBattLevelG(dc);
 
-        drawMinuteGraphics(dc);
-
+/*
         if (burnRate1.size() > 0) {
             drawBurnrate(dc, 130, 200, burnRate1[1], burnRate1[0], "R");
         }
         if (burnRate2.size() > 0) {
             drawBurnrate(dc, 120, 200, burnRate2[1], burnRate2[0], "L");
         }
+*/
+        drawBurnratev2(dc);
+
+        drawMinuteGraphics(dc);
     }
 
     // Called when this View is removed from the screen. Save the
@@ -129,8 +132,9 @@ class digitalFaceView extends WatchUi.WatchFace {
     function drawBattLevelG(dc) {
         var yPos = 167;
         var ySize = 2;
-        var xStart = 45;
-        var xEnd = 160;
+        var xEnd = 140; //this is the full width
+        var xStart = (dc.getWidth()/2)-(xEnd/2);
+
         var markerSize = [3,12];
 
         var battLevel = System.getSystemStats().battery;
@@ -241,12 +245,18 @@ class digitalFaceView extends WatchUi.WatchFace {
 
             //trim old value from array if needed
             var oldestDataAge = utc_now - battTimeStamp[0];
+            /*
             while (battTimeStamp.size() > 5 and oldestDataAge > maxDataAge) {
                 battTimeStamp = battTimeStamp.slice(1,null);
                 battHistory = battHistory.slice(1,null);
                 System.println("trim " + battTimeStamp[0]);
 
                 oldestDataAge = utc_now - battTimeStamp[0];
+            }
+            */
+            if (battTimeStamp.size() > 20) {
+                battTimeStamp = battTimeStamp.slice(-19, null);
+                battHistory = battHistory.slice(-19, null);
             }
 
             //update storage    
@@ -306,6 +316,20 @@ class digitalFaceView extends WatchUi.WatchFace {
         return [dataAge, battRate];
     }
 
+
+    function computeBurnRatev2(utc_now, batt_now, utc_point, batt_point) {
+        //compute burn rate
+        var dataAge = (utc_now - utc_point)/60;
+        var battDiff = batt_point - batt_now;
+
+        var battRate = 0;
+        if (dataAge > 0) {
+            battRate = battDiff / (dataAge.toFloat()/60);
+        }
+
+        return battRate;
+    }
+
     function drawBurnrate(dc, xPos, yPos, br, timePeriod, growDir) {
         var xSize = 10;
         var yMax = 20;
@@ -350,7 +374,84 @@ class digitalFaceView extends WatchUi.WatchFace {
             dc.fillRectangle(xPos, yPos - 5, timePeriod, 1);
         }
         */
+    }
 
+    function drawBurnratev2(dc) {
+        var utc_now = Time.now().value();
+        var batt_now = System.getSystemStats().battery.toFloat();
+        var battTimeStamp = Application.getApp().getProperty("battery_stamp");
+        var battHistory = Application.getApp().getProperty("battery");
+        var brAge = [];
+        var brVal = [-1,-1,-1,-1,-1,-1,-1];
+
+        for(var i=0; i < battTimeStamp.size(); i++) {
+            var age_m = (utc_now - battTimeStamp[i])/(60*30);
+
+            // xxx
+            brAge.add(age_m);
+
+            var br=0;
+            if (age_m == 1) {
+                br = computeBurnRatev2(utc_now, batt_now, battTimeStamp[i], battHistory[i]);
+                brVal[0] = br;
+            } else if (age_m == 2 or age_m == 3) {
+                br = computeBurnRatev2(utc_now, batt_now, battTimeStamp[i], battHistory[i]);
+                brVal[1] = br;
+            } else if (age_m == 4 or age_m == 5) {
+                br = computeBurnRatev2(utc_now, batt_now, battTimeStamp[i], battHistory[i]);
+                brVal[2] = br;
+            } else if (age_m == 6 or age_m == 7) {
+                br = computeBurnRatev2(utc_now, batt_now, battTimeStamp[i], battHistory[i]);
+                brVal[3] = br;
+            } else if (age_m == 8 or age_m == 9) {
+                br = computeBurnRatev2(utc_now, batt_now, battTimeStamp[i], battHistory[i]);
+                brVal[4] = br;
+            } else if (age_m == 10 or age_m == 11) {
+                br = computeBurnRatev2(utc_now, batt_now, battTimeStamp[i], battHistory[i]);
+                brVal[5] = br;
+            } else if (age_m == 12 or age_m == 13) {
+                br = computeBurnRatev2(utc_now, batt_now, battTimeStamp[i], battHistory[i]);
+                brVal[6] = br;
+            }
+
+        }
+
+        System.println("br: " + brVal + "/" + brAge);
+
+        var sizeMax = [80,20];
+        var posOrigin = [(dc.getWidth()/2)-(sizeMax[0]/2),200];
+
+
+        dc.setPenWidth(1);
+        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+        dc.drawRectangle(posOrigin[0], posOrigin[1], sizeMax[0], sizeMax[1]);
+
+        dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
+        for (var i=0; i < brVal.size(); i++) {
+            if (brVal[i] >= 0) {
+                var bar_width = 9;
+
+                //add single pixel space
+                var x_offset = (i*bar_width)+1;
+
+                //
+                var y_size = (brVal[i]*sizeMax[1])/1;
+                if (y_size < 1) {y_size = 1;} //at least 1 pixel
+                if (y_size > sizeMax[1]) {y_size = sizeMax[1];} //at most sizeMax
+
+                if (brVal[i] > 1.8) {
+                    dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+                } else if (brVal[i] > 0.8) {
+                    dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
+                } else {
+                    dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
+                }
+
+                dc.fillRectangle(posOrigin[0] + x_offset -1, posOrigin[1],
+                                 bar_width-1 , y_size);
+                //System.println("draw " + i + ":" + x_offset + "," + y_size);
+            }
+        }
     }
 
     function drawMinuteGraphics(dc) {
