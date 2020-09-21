@@ -27,7 +27,7 @@ class digitalFaceView extends WatchUi.WatchFace {
         System.println(x);
         */
 
-        //*
+        /*
         var utc_now = Time.now().value();
         var batt_now = System.getSystemStats().battery.toFloat();
         
@@ -41,7 +41,7 @@ class digitalFaceView extends WatchUi.WatchFace {
                            batt_now + 1.1, batt_now + 0.05];
         Application.getApp().setProperty("battery", battHistory);
         Application.getApp().setProperty("battery_stamp", battTimeStamp);
-        //*/
+        */
         // ====================================
         
     }
@@ -376,20 +376,19 @@ class digitalFaceView extends WatchUi.WatchFace {
         */
     }
 
+    //draw burnrate graphic bar
     function drawBurnratev2(dc) {
         var utc_now = Time.now().value();
         var batt_now = System.getSystemStats().battery.toFloat();
         var battTimeStamp = Application.getApp().getProperty("battery_stamp");
         var battHistory = Application.getApp().getProperty("battery");
-        var brAge = [];
         var brVal = [-1,-1,-1,-1,-1,-1,-1];
 
         for(var i=0; i < battTimeStamp.size(); i++) {
+            // calculate how old is the data in 30 minutes unit (60sec*30)
             var age_m = (utc_now - battTimeStamp[i])/(60*30);
 
-            // xxx
-            brAge.add(age_m);
-
+            //organized the data for 30m, 1h, 2h, 3h, 4h, 5h,6h
             var br=0;
             if (age_m == 1) {
                 br = computeBurnRatev2(utc_now, batt_now, battTimeStamp[i], battHistory[i]);
@@ -413,32 +412,34 @@ class digitalFaceView extends WatchUi.WatchFace {
                 br = computeBurnRatev2(utc_now, batt_now, battTimeStamp[i], battHistory[i]);
                 brVal[6] = br;
             }
-
         }
-
-        System.println("br: " + brVal + "/" + brAge);
+        //System.println("br: " + brVal);
 
         var sizeMax = [80,20];
         var posOrigin = [(dc.getWidth()/2)-(sizeMax[0]/2),200];
 
-
         dc.setPenWidth(1);
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        dc.drawRectangle(posOrigin[0], posOrigin[1], sizeMax[0], sizeMax[1]);
+        dc.drawRectangle(posOrigin[0], posOrigin[1], sizeMax[0], 1);
 
         dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
         for (var i=0; i < brVal.size(); i++) {
             if (brVal[i] >= 0) {
+                //default bar width is 9, but make it thinner for the last half
                 var bar_width = 9;
+                if (i >= 4) {
+                    bar_width = 4;
+                }
 
                 //add single pixel space
                 var x_offset = (i*bar_width)+1;
 
-                //
+                //calculate y height based on the burnrate, but cap at max height
                 var y_size = (brVal[i]*sizeMax[1])/1;
                 if (y_size < 1) {y_size = 1;} //at least 1 pixel
                 if (y_size > sizeMax[1]) {y_size = sizeMax[1];} //at most sizeMax
 
+                //use color to help visualize burnrate > 0.8
                 if (brVal[i] > 1.8) {
                     dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
                 } else if (brVal[i] > 0.8) {
@@ -447,13 +448,16 @@ class digitalFaceView extends WatchUi.WatchFace {
                     dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
                 }
 
+                //draw the bar
                 dc.fillRectangle(posOrigin[0] + x_offset -1, posOrigin[1],
                                  bar_width-1 , y_size);
+
                 //System.println("draw " + i + ":" + x_offset + "," + y_size);
             }
         }
     }
 
+    //draw minutes "hand"
     function drawMinuteGraphics(dc) {
         var clockTime = System.getClockTime();
 
