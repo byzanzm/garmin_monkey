@@ -32,12 +32,12 @@ class digitalFaceView extends WatchUi.WatchFace {
         var batt_now = System.getSystemStats().battery.toFloat();
         
          
-        var battTimeStamp = [utc_now - (batt_history_refresh*12),
+        var battTimeStamp = [utc_now - (batt_history_refresh*24),
+                         utc_now - (batt_history_refresh*18),
+                         utc_now - (batt_history_refresh*12),
                          utc_now - (batt_history_refresh*6),
-                         utc_now - (batt_history_refresh*3),
-                         utc_now - (batt_history_refresh*2),
-                         utc_now - (batt_history_refresh*1),];
-        var battHistory = [batt_now + 2, batt_now + 1.8, batt_now + 1.2,
+                         utc_now - (batt_history_refresh*3),];
+        var battHistory = [batt_now + 3.3, batt_now + 1.8, batt_now + 1.2,
                            batt_now + 1.1, batt_now + 0.05];
         Application.getApp().setProperty("battery", battHistory);
         Application.getApp().setProperty("battery_stamp", battTimeStamp);
@@ -426,13 +426,21 @@ class digitalFaceView extends WatchUi.WatchFace {
         for (var i=0; i < brVal.size(); i++) {
             if (brVal[i] >= 0) {
                 //default bar width is 9, but make it thinner for the last half
-                var bar_width = 9;
-                if (i >= 4) {
-                    bar_width = 4;
-                }
+                var bar_width = 12;
+                var spacing = 3;
 
-                //add single pixel space
-                var x_offset = (i*bar_width)+1;
+                //add two pixel space
+                var x_offset = 0;
+                if (i >= 4) {
+                    // calc off set of the first three bar with wider width
+                    x_offset = ((4*bar_width) + (4*spacing)) ;
+
+                    bar_width = 7;
+                    spacing = 2;
+                    x_offset += ((i-4)*bar_width) + (spacing*(i-4));
+                } else {
+                    x_offset = (i*bar_width) + (i*spacing);
+                }
 
                 //calculate y height based on the burnrate, but cap at max height
                 var y_size = (brVal[i]*sizeMax[1])/1;
@@ -449,7 +457,7 @@ class digitalFaceView extends WatchUi.WatchFace {
                 }
 
                 //draw the bar
-                dc.fillRectangle(posOrigin[0] + x_offset -1, posOrigin[1],
+                dc.fillRectangle(posOrigin[0] + x_offset, posOrigin[1],
                                  bar_width-1 , y_size);
 
                 //System.println("draw " + i + ":" + x_offset + "," + y_size);
