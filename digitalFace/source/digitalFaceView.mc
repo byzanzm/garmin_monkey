@@ -33,12 +33,12 @@ class digitalFaceView extends WatchUi.WatchFace {
         
          
         var battTimeStamp = [utc_now - (batt_history_refresh*24),
-                         utc_now - (batt_history_refresh*18),
-                         utc_now - (batt_history_refresh*12),
                          utc_now - (batt_history_refresh*6),
-                         utc_now - (batt_history_refresh*3),];
-        var battHistory = [batt_now + 3.3, batt_now + 1.8, batt_now + 1.2,
-                           batt_now + 1.1, batt_now + 0.05];
+                         utc_now - (batt_history_refresh*3),
+                         utc_now - (batt_history_refresh*2),
+                         utc_now - (batt_history_refresh*1),];
+        var battHistory = [batt_now + 5.3, batt_now + 5.9, batt_now + 1.6,
+                           batt_now + 0.3, batt_now + 0.2];
         Application.getApp().setProperty("battery", battHistory);
         Application.getApp().setProperty("battery_stamp", battTimeStamp);
         */
@@ -107,7 +107,7 @@ class digitalFaceView extends WatchUi.WatchFace {
         var timeString = Lang.format("$1$:$2$", [clockTime.hour, clockTime.min.format("%02d")]);
 
         View.findDrawableById("TimeHour").setText(clockTime.hour.format("%02d"));
-        View.findDrawableById("TimeMin").setText(":"+clockTime.min.format("%02d"));
+        View.findDrawableById("TimeMin").setText(""+clockTime.min.format("%02d"));
     }
 
     function drawDate() {
@@ -274,8 +274,10 @@ class digitalFaceView extends WatchUi.WatchFace {
             //compute burn rate to half oldest data
             burnRate2 =[];
             if (battTimeStamp.size() > 4) {
-                var p = battTimeStamp.size()/3;
-                burnRate2 = computeBurnRate(utc_now, batt_now, battTimeStamp[p], battHistory[p]);
+                //var p = battTimeStamp.size()/3;
+                var p=3;
+                burnRate2 = computeBurnRate(utc_now, batt_now, battTimeStamp.reverse()[p],
+                            battHistory.reverse()[p]);
                 //battRate2Str = burnRate2[1].format("%.1f") + "% " +  burnRate2[0];
                 battRate2Str = burnRate2[0] + " " + burnRate2[1].format("%.1f") + "%";
             }
@@ -288,8 +290,10 @@ class digitalFaceView extends WatchUi.WatchFace {
             //compute burn rate to half oldest data
             burnRate2 =[];
             if (battTimeStamp.size() > 4) {
-                var p = battTimeStamp.size()/3;
-                burnRate2 = computeBurnRate(utc_now, batt_now, battTimeStamp[p], battHistory[p]);
+                //var p = battTimeStamp.size()/3;
+                var p=3;
+                burnRate2 = computeBurnRate(utc_now, batt_now, battTimeStamp.reverse()[p],
+                            battHistory.reverse()[p]);
                 //battRate2Str = burnRate2[0] + "__" + burnRate2[1].format("%.1f") + "%";
                 battRate2Str = burnRate2[0] + " " + burnRate2[1].format("%.1f") + "%";
             }
@@ -304,14 +308,14 @@ class digitalFaceView extends WatchUi.WatchFace {
         //compute burn rate
         var dataAge = (utc_now - utc_point)/60;
         var battDiff = batt_point - batt_now;
-        System.println("x "+dataAge);
+        //System.println("x "+dataAge);
         
         var battRate = 0;
         if (dataAge > 0) {
             battRate = battDiff / (dataAge.toFloat()/60);
         }
         
-        System.println("rate: " + dataAge + "/" + battRate);
+        //System.println("rate: " + dataAge + "/" + battRate);
 
         return [dataAge, battRate];
     }
@@ -448,10 +452,12 @@ class digitalFaceView extends WatchUi.WatchFace {
                 if (y_size > sizeMax[1]) {y_size = sizeMax[1];} //at most sizeMax
 
                 //use color to help visualize burnrate > 0.8
-                if (brVal[i] > 1.8) {
+                if (brVal[i] > 5) {
                     dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
-                } else if (brVal[i] > 0.8) {
+                } else if (brVal[i] > 3) {
                     dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
+                } else if (brVal[i] > 0.8) {
+                    dc.setColor(0xEEEE00, Graphics.COLOR_TRANSPARENT);
                 } else {
                     dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
                 }
@@ -480,5 +486,4 @@ class digitalFaceView extends WatchUi.WatchFace {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawArc(dc.getWidth()/2, dc.getHeight()/2, dc.getHeight()/2, Graphics.ARC_COUNTER_CLOCKWISE, pos-1, pos+1);
     }
-
 }
