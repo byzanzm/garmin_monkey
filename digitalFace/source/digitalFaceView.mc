@@ -18,16 +18,12 @@ class digitalFaceView extends WatchUi.WatchFace {
     function initialize() {
         WatchFace.initialize();
         
-        // ====================================
         //debug
-        /*
-        var x = Application.getApp().getProperty("battery");
-        System.println(x);
-        x = Application.getApp().getProperty("battery_stamp");
-        System.println(x);
-        */
+        //debugBatteryValue();
+    }
 
-        /*
+    //set battery history value for debug purpose
+    function debugBatteryValue() {
         var utc_now = Time.now().value();
         var batt_now = System.getSystemStats().battery.toFloat();
         
@@ -41,10 +37,8 @@ class digitalFaceView extends WatchUi.WatchFace {
                            batt_now + 0.3, batt_now + 0.2];
         Application.getApp().setProperty("battery", battHistory);
         Application.getApp().setProperty("battery_stamp", battTimeStamp);
-        */
-        // ====================================
-        
     }
+
 
     // Load your resources here
     function onLayout(dc) {
@@ -131,7 +125,7 @@ class digitalFaceView extends WatchUi.WatchFace {
 
     function drawBattLevelG(dc) {
         var yPos = 167;
-        var ySize = 2;
+        var ySize = 3;
         var xEnd = 140; //this is the full width
         var xStart = (dc.getWidth()/2)-(xEnd/2);
 
@@ -139,7 +133,7 @@ class digitalFaceView extends WatchUi.WatchFace {
 
         var battLevel = System.getSystemStats().battery;
 
-        // figure out the color for battery state
+        // figure out the color and bar len for battery state
         var color = Graphics.COLOR_WHITE;
         var xSize = 10;
         if (battLevel > 75) {
@@ -160,15 +154,19 @@ class digitalFaceView extends WatchUi.WatchFace {
 
             xSize = ((battLevel-minLevel)/sizeLevel)*xEnd;
         }
+        // bar len should be at least 3 px for ui visbility
+        if (xSize < 7) {xSize = 7;}
+
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
 
         //draw marker for start,mid,end state
-        dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
+        //dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
         dc.fillRectangle(xStart, yPos-5, markerSize[0], markerSize[1]);
         dc.fillRectangle(xStart+xEnd, yPos-5, markerSize[0], markerSize[1]);
         dc.fillRectangle(xStart+(xEnd/2), yPos-5, markerSize[0], markerSize[1]);
 
         //draw the battery level
-        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+
         dc.fillRectangle(xStart, yPos, xSize, ySize);
         //dc.fillRectangle(xStart+xSize, yPos-5, markerSize[0], markerSize[1]);
     }
@@ -419,7 +417,7 @@ class digitalFaceView extends WatchUi.WatchFace {
         }
         //System.println("br: " + brVal);
 
-        var sizeMax = [80,20];
+        var sizeMax = [80,15];
         var posOrigin = [(dc.getWidth()/2)-(sizeMax[0]/2),200];
 
         dc.setPenWidth(1);
@@ -452,12 +450,12 @@ class digitalFaceView extends WatchUi.WatchFace {
                 if (y_size > sizeMax[1]) {y_size = sizeMax[1];} //at most sizeMax
 
                 //use color to help visualize burnrate > 0.8
-                if (brVal[i] > 5) {
+                if (brVal[i] > 5.5) {
+                    dc.setColor(0x884444, Graphics.COLOR_TRANSPARENT);
+                } else if (brVal[i] > 2.5) {
                     dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
-                } else if (brVal[i] > 3) {
-                    dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
                 } else if (brVal[i] > 0.8) {
-                    dc.setColor(0xEEEE00, Graphics.COLOR_TRANSPARENT);
+                    dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
                 } else {
                     dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
                 }
