@@ -96,10 +96,14 @@ class digitalFaceView extends WatchUi.WatchFace {
     }
 
     function drawClock() {
+        // Load the custom font we use for drawing the 3, 6, 9, and 12 on the watchface.
+        var font = WatchUi.loadResource(Rez.Fonts.id_font_robo);
+
         // Get and show the current time
         var clockTime = System.getClockTime();
         var timeString = Lang.format("$1$:$2$", [clockTime.hour, clockTime.min.format("%02d")]);
 
+        View.findDrawableById("TimeHour").setFont(font);
         View.findDrawableById("TimeHour").setText(clockTime.hour.format("%02d"));
         View.findDrawableById("TimeMin").setText(""+clockTime.min.format("%02d"));
     }
@@ -124,7 +128,7 @@ class digitalFaceView extends WatchUi.WatchFace {
     }
 
     function drawBattLevelG(dc) {
-        var yPos = 167;
+        var yPos = 170;
         var ySize = 3;
         var xEnd = 140; //this is the full width
         var xStart = (dc.getWidth()/2)-(xEnd/2);
@@ -160,15 +164,12 @@ class digitalFaceView extends WatchUi.WatchFace {
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
 
         //draw marker for start,mid,end state
-        //dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
         dc.fillRectangle(xStart, yPos-5, markerSize[0], markerSize[1]);
         dc.fillRectangle(xStart+xEnd, yPos-5, markerSize[0], markerSize[1]);
         dc.fillRectangle(xStart+(xEnd/2), yPos-5, markerSize[0], markerSize[1]);
 
         //draw the battery level
-
         dc.fillRectangle(xStart, yPos, xSize, ySize);
-        //dc.fillRectangle(xStart+xSize, yPos-5, markerSize[0], markerSize[1]);
     }
 
     function drawStatus() {
@@ -243,15 +244,6 @@ class digitalFaceView extends WatchUi.WatchFace {
 
             //trim old value from array if needed
             var oldestDataAge = utc_now - battTimeStamp[0];
-            /*
-            while (battTimeStamp.size() > 5 and oldestDataAge > maxDataAge) {
-                battTimeStamp = battTimeStamp.slice(1,null);
-                battHistory = battHistory.slice(1,null);
-                System.println("trim " + battTimeStamp[0]);
-
-                oldestDataAge = utc_now - battTimeStamp[0];
-            }
-            */
             if (battTimeStamp.size() > 20) {
                 battTimeStamp = battTimeStamp.slice(-19, null);
                 battHistory = battHistory.slice(-19, null);
@@ -265,8 +257,8 @@ class digitalFaceView extends WatchUi.WatchFace {
             System.println(battTimeStamp + " " + battHistory);    
 
             //compute burn rate to oldest data
+            /* Old text style burn rate info
             burnRate1 = computeBurnRate(utc_now, batt_now, battTimeStamp[0], battHistory[0]);
-            //battRateStr = burnRate1[0] + "__" + burnRate1[1].format("%.1f") + "%";
             battRateStr = burnRate1[0] + " " + burnRate1[1].format("%.1f") + "%";
 
             //compute burn rate to half oldest data
@@ -276,13 +268,13 @@ class digitalFaceView extends WatchUi.WatchFace {
                 var p=3;
                 burnRate2 = computeBurnRate(utc_now, batt_now, battTimeStamp.reverse()[p],
                             battHistory.reverse()[p]);
-                //battRate2Str = burnRate2[1].format("%.1f") + "% " +  burnRate2[0];
                 battRate2Str = burnRate2[0] + " " + burnRate2[1].format("%.1f") + "%";
             }
+            */
         } else if (battRateStr.equals(".") and battTimeStamp.size() > 0) {
             //compute burn rate to oldest data
+            /* Old text style burn rate info
             burnRate1 = computeBurnRate(utc_now, batt_now, battTimeStamp[0], battHistory[0]);
-            //battRateStr = burnRate1[0] + "__" + burnRate1[1].format("%.1f") + "%";
             battRateStr = burnRate1[0] + " " + burnRate1[1].format("%.1f") + "%";
 
             //compute burn rate to half oldest data
@@ -292,14 +284,13 @@ class digitalFaceView extends WatchUi.WatchFace {
                 var p=3;
                 burnRate2 = computeBurnRate(utc_now, batt_now, battTimeStamp.reverse()[p],
                             battHistory.reverse()[p]);
-                //battRate2Str = burnRate2[0] + "__" + burnRate2[1].format("%.1f") + "%";
                 battRate2Str = burnRate2[0] + " " + burnRate2[1].format("%.1f") + "%";
             }
+            */
         } else {
         }
 
-        View.findDrawableById("BattHistory").setText(battRate2Str + " " + battRateStr);
-        //View.findDrawableById("BattHistory2").setText(battRate2Str);
+        //View.findDrawableById("BattHistory").setText(battRate2Str + " " + battRateStr);
     }
 
     function computeBurnRate(utc_now, batt_now, utc_point, batt_point) {
